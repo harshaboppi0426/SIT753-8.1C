@@ -120,7 +120,7 @@ Console: ${env.BUILD_URL}
   }
 }
 
-      post {
+            post {
         success {
           emailext(
             to: "${env.EMAIL_TO}",
@@ -158,3 +158,4 @@ Console: ${env.BUILD_URL}
     }
   }
 }
+
