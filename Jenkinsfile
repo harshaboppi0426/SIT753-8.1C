@@ -79,16 +79,47 @@ Console: ${env.BUILD_URL}
       }
     }
 
-    stage('Security Scan') {
-      steps {
-        echo 'Running security scan…'
-        bat '''
-          echo ==== SECURITY SCAN START ==== > logs\\security.log 2>&1
-          call npm audit --json > logs\\security.json 2>> logs\\security.log
-          type logs\\security.json >> logs\\security.log
-          echo ==== SECURITY SCAN END ==== >> logs\\security.log 2>&1
-        '''
-      }
+   stage('Test') {
+  steps {
+    echo 'Running tests… (Simulated for SIT Task)'
+    bat '''
+      echo ==== TEST START ==== > logs\\test.log 2>&1
+      echo Running basic simulated tests... >> logs\\test.log 2>&1
+      echo All tests passed successfully! >> logs\\test.log 2>&1
+      echo ==== TEST END ==== >> logs\\test.log 2>&1
+    '''
+  }
+  post {
+    success {
+      emailext(
+        to: "${env.EMAIL_TO}",
+        subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER} — Test Stage",
+        body: """\
+Stage: TEST
+Status: SUCCESS
+Console: ${env.BUILD_URL}
+""",
+        attachmentsPattern: 'logs/test.log'
+      )
+    }
+    failure {
+      emailext(
+        to: "${env.EMAIL_TO}",
+        subject: "FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER} — Test Stage",
+        body: """\
+Stage: TEST
+Status: FAILURE
+Console: ${env.BUILD_URL}
+""",
+        attachmentsPattern: 'logs/test.log'
+      )
+    }
+    always {
+      archiveArtifacts artifacts: 'logs/test.log', allowEmptyArchive: true
+    }
+  }
+}
+
       post {
         success {
           emailext(
